@@ -1,6 +1,6 @@
 # Hospital Queue Management System with AI/ML
 
-An intelligent hospital queue management system that uses machine learning to optimize doctor assignment, reduce patient wait times, and balance the load across healthcare providers.
+An intelligent hospital queue management system that uses machine learning to optimize doctor assignment, reduce patient wait times, and balance the load across healthcare providers. Features real-time queue monitoring, doctor portals, and electronic prescription management.
 
 ## 🌟 Features
 
@@ -15,7 +15,42 @@ An intelligent hospital queue management system that uses machine learning to op
 - **Real-time Queue Tracking**: Live updates on queue positions and wait times
 - **Department-based Routing**: Multiple departments with specialized doctors
 - **Token Generation**: Automatic token number generation for appointment tracking
-- **Dashboard Analytics**: Real-time statistics on waiting patients, completed appointments, and average wait times
+- **Dashboard Analytics**: Real-time statistics (auto-refreshes every 5 seconds) on waiting patients, completed appointments, and average wait times
+
+### 🆕 Advanced Features
+
+#### 1. **Queue View (For Receptionists/Admin)**
+- Monitor all patients across all departments in one view
+- Real-time table with auto-refresh (every 10 seconds)
+- Color-coded status indicators:
+  - 🟡 Yellow: Waiting
+  - 🔵 Blue: In Progress
+  - 🟢 Green: Completed
+- Priority badges for urgent cases
+- Patient details, assigned doctors, and estimated wait times
+- Manual refresh option with toggle for auto-refresh
+
+#### 2. **Doctor Portal**
+- Secure login system for individual doctors
+- Personal patient queue (sorted by priority)
+- Call patients one by one
+- Current patient display with full details:
+  - Patient demographics
+  - Medical history
+  - Contact information
+  - Priority status
+- Electronic prescription writing
+- Mark appointments as completed
+- Auto-refresh queue (every 5 seconds)
+
+#### 3. **Electronic Prescription System**
+- Diagnosis entry (required)
+- Medications with dosage instructions (required)
+- Special patient instructions (optional)
+- Doctor's notes (optional)
+- Save as draft or complete appointment
+- Prescription storage in database
+- Retrieve prescriptions via API
 
 ### AI/ML Features
 - **Random Forest Regression** for wait time prediction
@@ -27,24 +62,29 @@ An intelligent hospital queue management system that uses machine learning to op
 ### User Interface
 - Modern, aesthetic design with gradient backgrounds
 - Intuitive workflow for receptionists
-- Real-time statistics display
+- Tab-based navigation (Receptionist | Queue View | Doctor Portal)
+- Real-time statistics display with auto-refresh
 - Responsive design for all devices
 - Smooth animations and transitions
+- Visual feedback for updates
 
 ## 🏗️ Architecture
 
 ```
 hospital-queue-system/
 ├── backend/
-│   ├── app.py                    # Flask API server
+│   ├── app.py                    # Flask API server with all endpoints
 │   ├── ml_queue_manager.py       # ML model for queue optimization
 │   ├── requirements.txt          # Python dependencies
 │   └── hospital_queue.db         # SQLite database (auto-generated)
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── App.js               # Main React component
-│   │   ├── App.css              # Styling
+│   │   ├── App.js               # Main React component with navigation
+│   │   ├── App.css              # Complete styling
+│   │   ├── QueueView.js         # Queue monitoring component
+│   │   ├── DoctorLogin.js       # Doctor authentication
+│   │   ├── DoctorPortal.js      # Doctor's patient management
 │   │   └── index.js             # Entry point
 │   ├── public/
 │   │   └── index.html           # HTML template
@@ -121,13 +161,15 @@ The frontend will start on `http://localhost:3000` and automatically open in you
 
 ### For Receptionists
 
-#### 1. Search for Existing Patient
+#### 1. Book Appointments (Receptionist Tab)
+- Click **"Receptionist"** tab in the header
 - Enter the patient's unique ID in the search box
 - Click "Search Patient"
 - If found, you'll be taken to the appointment booking screen
+- If not found, click "Register New Patient"
 
 #### 2. Register New Patient
-- If patient not found, click "Register New Patient"
+- Click "Register New Patient"
 - Fill in the required fields:
   - Patient ID (unique identifier)
   - Full Name
@@ -138,8 +180,8 @@ The frontend will start on `http://localhost:3000` and automatically open in you
   - Medical History (optional)
 - Click "Register Patient"
 
-#### 3. Book Appointment
-- Select the appropriate department
+#### 3. Book Appointment with AI Assignment
+- After patient is found/registered, select the appropriate department
 - The system shows:
   - Department description
   - Number of available doctors
@@ -151,13 +193,65 @@ The frontend will start on `http://localhost:3000` and automatically open in you
   - Factor in average consultation times
   - Evaluate patient priority
   - Assign the optimal doctor
+- View appointment details with token number and estimated wait time
 
-#### 4. View Appointment Details
-- Token number
-- Assigned doctor
-- Estimated wait time
-- Queue position
-- Department information
+#### 4. Monitor Queue (Queue View Tab)
+- Click **"Queue View"** tab in the header
+- See all waiting patients across all departments
+- Monitor real-time status updates
+- View patient details, assigned doctors, and wait times
+- Enable/disable auto-refresh (updates every 10 seconds)
+- Click "Refresh" for manual update
+
+### For Doctors
+
+#### 1. Login (Doctor Portal Tab)
+- Click **"Doctor Portal"** tab in the header
+- Enter credentials:
+  - **Username**: `doctor1`, `doctor2`, ... `doctor10`
+  - **Password**: `password123`
+- Click "Login"
+
+#### 2. View Your Queue
+- See your personal queue on the right side
+- Patients are sorted by priority (high priority first)
+- View waiting patient details:
+  - Token number
+  - Patient name, age, gender
+  - Appointment time
+  - Priority indicator
+
+#### 3. Call Next Patient
+- Click "Call Patient" button for the next patient in queue
+- Patient moves to "Current Patient" section
+- Status changes to "In Progress"
+- View complete patient information:
+  - Demographics
+  - Medical history
+  - Contact details
+
+#### 4. Write Prescription
+- Click "Write Prescription" button
+- Fill in the prescription form:
+  - **Diagnosis** (required): Enter the diagnosis
+  - **Medications** (required): List medications with dosage
+  - **Instructions** (optional): Special instructions for patient
+  - **Notes** (optional): Additional doctor's notes
+- Click "Save Draft" to save without completing
+- OR click "Complete Appointment" to finish consultation
+
+#### 5. Complete Appointment
+- Must have filled diagnosis and medications
+- Click "Complete Appointment"
+- Prescription is saved to database
+- Appointment marked as completed
+- Patient removed from queue
+- Doctor's queue count updated
+- Stats automatically refresh
+
+#### 6. Logout
+- Click "Logout" button in the header
+- Returns to login screen
 
 ## 🤖 How the AI/ML Works
 
@@ -230,6 +324,17 @@ The system uses a **Random Forest Regression** model with the following features
 - actual_wait_time
 - status (waiting/in-progress/completed/cancelled)
 - priority_score
+- called_at (timestamp when doctor called patient)
+- completed_at (timestamp when appointment finished)
+
+**Prescription** (NEW)
+- id (primary key)
+- appointment_id (foreign key)
+- diagnosis (required)
+- medications (required)
+- instructions (optional)
+- notes (optional)
+- created_at
 
 ## 🎨 Customization
 
@@ -274,6 +379,28 @@ self.wait_time_model = RandomForestRegressor(
 
 Edit `frontend/src/App.css` to change colors, fonts, or layout.
 
+### Changing Auto-Refresh Intervals
+
+In `frontend/src/App.js`:
+```javascript
+// Stats refresh interval (currently 5 seconds)
+const statsInterval = setInterval(() => {
+  fetchStats();
+}, 5000); // Change to 3000 for 3 seconds, 10000 for 10 seconds, etc.
+```
+
+In `frontend/src/QueueView.js`:
+```javascript
+// Queue refresh interval (currently 10 seconds)
+interval = setInterval(fetchQueue, 10000); // Adjust as needed
+```
+
+In `frontend/src/DoctorPortal.js`:
+```javascript
+// Doctor queue refresh interval (currently 5 seconds)
+interval = setInterval(fetchQueue, 5000); // Adjust as needed
+```
+
 ## 📊 API Endpoints
 
 ### Patient Management
@@ -289,8 +416,38 @@ Edit `frontend/src/App.css` to change colors, fonts, or layout.
 - `GET /api/appointments/today` - Get today's appointments
 - `PUT /api/appointment/<id>/status` - Update appointment status
 
+### Queue Management (NEW)
+- `GET /api/queue/all` - Get all patients in queue (all departments)
+- `GET /api/doctor/<doctor_id>/queue` - Get specific doctor's queue
+
+### Doctor Portal (NEW)
+- `POST /api/doctor/login` - Doctor authentication
+- `PUT /api/appointment/<id>/call` - Call patient (change to in-progress)
+- `POST /api/appointment/<id>/prescription` - Save/update prescription
+- `GET /api/appointment/<id>/prescription` - Get prescription
+- `PUT /api/appointment/<id>/complete` - Mark appointment as completed
+
 ### Analytics
 - `GET /api/stats/dashboard` - Get dashboard statistics
+
+## 👨‍⚕️ Doctor Login Credentials
+
+The system comes with 10 pre-configured doctors:
+
+| Username | Password | Doctor Name | Department | Specialization |
+|----------|----------|-------------|------------|----------------|
+| doctor1 | password123 | Dr. Sarah Johnson | General Medicine | Internal Medicine |
+| doctor2 | password123 | Dr. Michael Chen | General Medicine | Family Medicine |
+| doctor3 | password123 | Dr. Emily Davis | Cardiology | Interventional Cardiology |
+| doctor4 | password123 | Dr. Robert Wilson | Cardiology | Cardiac Electrophysiology |
+| doctor5 | password123 | Dr. Lisa Anderson | Orthopedics | Sports Medicine |
+| doctor6 | password123 | Dr. James Martinez | Orthopedics | Joint Replacement |
+| doctor7 | password123 | Dr. Jennifer Taylor | Pediatrics | Neonatology |
+| doctor8 | password123 | Dr. David Brown | Pediatrics | Pediatric Cardiology |
+| doctor9 | password123 | Dr. Amanda White | Dermatology | Cosmetic Dermatology |
+| doctor10 | password123 | Dr. Christopher Lee | ENT | Rhinology |
+
+**Note**: In production, implement proper password hashing and authentication.
 
 ## 🔧 Troubleshooting
 
@@ -315,6 +472,15 @@ app.run(debug=True, host='0.0.0.0', port=5001)
 - Ensure backend is running on port 5000
 - Check CORS settings in `app.py`
 
+**Module not found (QueueView, DoctorLogin, DoctorPortal):**
+- Ensure all three new component files are in `frontend/src/`
+- Check file names are exactly: `QueueView.js`, `DoctorLogin.js`, `DoctorPortal.js`
+
+**Stats not updating:**
+- Stats auto-refresh every 5 seconds
+- Check browser console for errors
+- Ensure backend is responding to `/api/stats/dashboard`
+
 **Module not found:**
 ```bash
 rm -rf node_modules package-lock.json
@@ -336,6 +502,11 @@ gunicorn -w 4 -b 0.0.0.0:5000 app:app
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://user:pass@localhost/hospital_db'
 ```
 
+3. Implement proper authentication:
+- Hash passwords with bcrypt
+- Use JWT tokens for sessions
+- Add role-based access control
+
 ### Frontend
 
 1. Build the production bundle:
@@ -345,18 +516,48 @@ npm run build
 
 2. Serve with nginx or any static file server
 
+See **DEPLOYMENT.md** for comprehensive production setup.
+
 ## 📈 Future Enhancements
 
-- Real-time notifications (SMS/Email)
-- Doctor dashboard for queue management
-- Patient mobile app
+- Real-time notifications (SMS/Email) when patient is called
+- Patient mobile app for queue status
 - Integration with hospital EHR systems
 - Voice-based patient check-in
 - Multi-language support
-- Advanced analytics and reporting
+- Advanced analytics and reporting dashboard
 - Video consultation integration
 - Insurance verification
 - Billing integration
+- Appointment scheduling calendar
+- Patient feedback system
+- Doctor performance analytics
+
+## 🧪 Testing
+
+### Generate Sample Data
+
+```bash
+# Generate 20 test patients with appointments
+python generate_sample_data.py
+
+# Generate 50 patients
+python generate_sample_data.py -n 50
+
+# Only register patients, don't book appointments
+python generate_sample_data.py --no-appointments
+```
+
+### Test Workflow
+
+1. **Register multiple patients** with different ages (including elderly and children)
+2. **Book appointments** across different departments
+3. **Switch to Queue View** - verify all appointments appear
+4. **Login as doctor1** - see only your assigned patients
+5. **Call a patient** - verify status changes to "In Progress"
+6. **Write prescription** - fill all fields
+7. **Complete appointment** - verify patient disappears from queue
+8. **Check stats** - verify they update automatically
 
 ## 🤝 Contributing
 
@@ -368,8 +569,26 @@ MIT License - Feel free to use this project for your needs.
 
 ## 👥 Support
 
-For issues or questions, please create an issue in the repository.
+For issues or questions, refer to:
+- **UPDATE_GUIDE.md** - Implementation guide for new features
+- **API_TESTING.md** - Comprehensive API reference
+- **DEPLOYMENT.md** - Production deployment instructions
+- **STATS_FIX.md** - Auto-refresh implementation details
+- **QUICK_REFERENCE.md** - Fast lookup guide
+
+## 🎉 Key Highlights
+
+✅ **AI-Powered**: Smart doctor assignment using ML
+✅ **Real-Time**: Auto-refreshing stats and queues
+✅ **Multi-User**: Separate interfaces for receptionists and doctors
+✅ **Complete Workflow**: From booking to prescription to completion
+✅ **Priority System**: Automatic prioritization of urgent cases
+✅ **Load Balancing**: Even distribution of patients
+✅ **Modern UI**: Beautiful, responsive, intuitive design
+✅ **Production Ready**: Comprehensive documentation and deployment guides
 
 ---
 
 **Built with ❤️ using Flask, React, and Machine Learning**
+
+**Version 2.0** - Now with Queue View, Doctor Portal, and Electronic Prescriptions!
