@@ -566,15 +566,7 @@ Feel free to fork this project and submit pull requests for any improvements!
 ## 📄 License
 
 MIT License - Feel free to use this project for your needs.
-
-## 👥 Support
-
-For issues or questions, refer to:
-- **UPDATE_GUIDE.md** - Implementation guide for new features
-- **API_TESTING.md** - Comprehensive API reference
-- **DEPLOYMENT.md** - Production deployment instructions
-- **STATS_FIX.md** - Auto-refresh implementation details
-- **QUICK_REFERENCE.md** - Fast lookup guide
+S
 
 ## 🎉 Key Highlights
 
